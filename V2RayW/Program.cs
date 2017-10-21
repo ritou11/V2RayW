@@ -94,7 +94,7 @@ namespace V2RayW
                     {
                         if (Properties.Settings.Default.alarmUnknown == true)
                         {
-          
+
                             DialogResult res = MessageBox.Show(String.Format("Unknown version of v2ray core detected, which may not be compatible with V2RayW.\n{0} is suggested. Do you want to continue to use the existing core?", Program.v2rayVersion), "Unknown v2ray.exe!", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
                             if (res == DialogResult.OK)
                             {
@@ -118,7 +118,7 @@ namespace V2RayW
                     }
                 default: break;
             }
-            
+
             //Properties.Settings.Default.Reset();
             Properties.Settings.Default.Upgrade();
             //MessageBox.Show(Properties.Settings.Default.profilesStr);
@@ -141,7 +141,7 @@ namespace V2RayW
             {
                 Program.proxyIsOn = false;
             }
-            if (Program.selectedServerIndex >= Program.profiles.Count )
+            if (Program.selectedServerIndex >= Program.profiles.Count)
             {
                 Program.selectedServerIndex = Program.profiles.Count - 1;
             }
@@ -160,7 +160,7 @@ namespace V2RayW
         {
             throw new NotImplementedException();
         }*/
-        
+
         static void OnProcessExit(object sender, EventArgs e)
         {
             Properties.Settings.Default.Save();
@@ -195,7 +195,7 @@ namespace V2RayW
                 return defaultValue;
             }
         }
-        
+
 
         public static async Task stopV2Ray()
         { // make sure v2ray is stopped
@@ -223,24 +223,26 @@ namespace V2RayW
                 if (generateConfigJson())
                 {
                     v2rayCoreWorker.RunWorkerAsync();
-                } else
+                }
+                else
                 {
                     Program.proxyIsOn = false;
                     mainForm.updateMenu();
                 }
-            } else
+            }
+            else
             {
                 await stopV2Ray();
                 Debug.WriteLine("v stopped");
             }
             //change system proxy
-            if ( useSysproxy && !finalAction)
+            if (useSysproxy && !finalAction)
             {
                 var res = updateSysproxy(proxyIsOn);
                 if (res == 2)
                     MessageBox.Show("Fained to modify system proxy settings!");
                 else if (res == 1)
-                    Debug.WriteLine("Shall I tell the user to wait for a while? "); 
+                    Debug.WriteLine("Shall I tell the user to wait for a while? ");
             }
         }
 
@@ -250,7 +252,7 @@ namespace V2RayW
         const int INTERNET_OPTION_SETTINGS_CHANGED = 39;
         const int INTERNET_OPTION_REFRESH = 37;
 
-        public static int updateSysproxy( bool state )
+        public static int updateSysproxy(bool state)
         {
             RegistryKey registry = Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings", true);
 
@@ -259,11 +261,11 @@ namespace V2RayW
             registry.SetValue("ProxyEnable", state ? 1 : 0);
             if (state)
             {
-                registry.SetValue("ProxyServer", (Properties.Settings.Default.inProtocol == 0 ? "" : "http://") + $"127.0.0.1:{Properties.Settings.Default.localPort}");
+                registry.SetValue("ProxyServer", $"127.0.0.1:{Properties.Settings.Default.httpPort}");
                 registry.SetValue("ProxyOverride", "<local>;localhost;127.*;10.*;172.16.*;172.17.*;172.18.*;172.19.*;172.20.*;172.21.*;172.22.*;172.23.*;172.24.*;172.25.*;172.26.*;172.27.*;172.28.*;172.29.*;172.30.*;172.31.*;172.32.*;192.168.*");
             }
             var sysState = registry.GetValue("ProxyEnable").ToString() == (state ? "1" : "0");
-            var sysServer = state ? registry.GetValue("ProxyServer").ToString() == (Properties.Settings.Default.inProtocol == 0 ? "" : "http://") +  $"127.0.0.1:{Properties.Settings.Default.localPort}" : true;
+            var sysServer = state ? registry.GetValue("ProxyServer").ToString() == $"127.0.0.1:{Properties.Settings.Default.httpPort}" : true;
             //MessageBox.Show(registry.GetValue("ProxyServer").ToString());
             var sysOverride = state ? registry.GetValue("ProxyOverride").ToString() == "<local>;localhost;127.*;10.*;172.16.*;172.17.*;172.18.*;172.19.*;172.20.*;172.21.*;172.22.*;172.23.*;172.24.*;172.25.*;172.26.*;172.27.*;172.28.*;172.29.*;172.30.*;172.31.*;172.32.*;192.168.*" : true;
             // They cause the OS to refresh the settings, causing IP to realy update
@@ -274,11 +276,13 @@ namespace V2RayW
                 if (settingsReturn && refreshReturn)
                 {
                     return 0;
-                } else
+                }
+                else
                 {
                     return 1;
                 }
-            } else
+            }
+            else
             {
                 return 2;
             }
@@ -324,28 +328,56 @@ namespace V2RayW
             string templateStr = Encoding.UTF8.GetString(proxyMode == 0 ? Properties.Resources.config_rules : Properties.Resources.config_simple);
             dynamic json = JObject.Parse(templateStr);
             //json.transport = JObject.Parse(Properties.Settings.Default.transportSettings);
-            json.inbound.port = Properties.Settings.Default.localPort;
-            json.inbound.protocol = Properties.Settings.Default.inProtocol == 0 ? "socks" : "http";
-            if (Properties.Settings.Default.inProtocol == 0)
+            if (Properties.Settings.Default.useSocks5 && Properties.Settings.Default.useHttp)
             {
+                json.inbound.port = Properties.Settings.Default.socks5Port;
+                json.inbound.protocol = "socks";
                 var inboundSettings = new
                 {
                     auth = "noauth",
                     udp = Properties.Settings.Default.udpSupport,
                     ip = "127.0.0.1"
                 };
-                json.inbound.settings = JObject.Parse(JsonConvert.SerializeObject(inboundSettings));
-            } else
+                json.inbound.settings = JObject.FromObject(inboundSettings);
+                // inboundDetour
+                var detour = new
+                {
+                    port = Properties.Settings.Default.httpPort,
+                    protocol = "http",
+                    listen = "127.0.0.1",
+                    settings = JObject.Parse("{\"timeout\": 0 }")
+                };
+                var jDetour = JObject.FromObject(detour);
+                JArray jInboundDetour = new JArray();
+                jInboundDetour.Add(jDetour);
+                json.inboundDetour = jInboundDetour;
+            }
+            else if (Properties.Settings.Default.useHttp)
             {
+                json.inbound.port = Properties.Settings.Default.httpPort;
+                json.inbound.protocol = "http";
                 json.inbound.settings = JObject.Parse("{\"timeout\": 0 }");
             }
+            else
+            {
+                json.inbound.port = Properties.Settings.Default.socks5Port;
+                json.inbound.protocol = "socks";
+                var inboundSettings = new
+                {
+                    auth = "noauth",
+                    udp = Properties.Settings.Default.udpSupport,
+                    ip = "127.0.0.1"
+                };
+                json.inbound.settings = JObject.FromObject(inboundSettings);
+            }
+
             json.inbound.allowPassive = profiles[selectedServerIndex].allowPassive;
             json.outbound.settings.vnext[0].address = profiles[selectedServerIndex].address;
             json.outbound.settings.vnext[0].port = profiles[selectedServerIndex].port;
             json.outbound.settings.vnext[0].users[0].id = profiles[selectedServerIndex].userId;
             json.outbound.settings.vnext[0].users[0].alterId = profiles[selectedServerIndex].alterId;
             json.outbound.settings.vnext[0].users[0].security = (new string[] { "aes-128-cfb", "aes-128-gcm", "chacha20-poly1305" })[profiles[selectedServerIndex].security % 3];
-            
+
             var ts = JObject.Parse(Properties.Settings.Default.transportSettings);
             //json.outbound.streamSettings.tcpSettings = ts["tcpSettings"];
             //json.outbound.streamSettings.kcpSettings = ts["kcpSettings"];
@@ -355,12 +387,13 @@ namespace V2RayW
 
             json.outbound.mux = JObject.Parse(Properties.Settings.Default.mux);
             var dnsArray = Properties.Settings.Default.dns.Split(',');
-            json.dns = JObject.Parse(dnsArray.Count() > 0 ? JsonConvert.SerializeObject( new { servers = dnsArray }) : "{\"servers\":[\"localhost\"]}");   
+            json.dns = JObject.Parse(dnsArray.Count() > 0 ? JsonConvert.SerializeObject(new { servers = dnsArray }) : "{\"servers\":[\"localhost\"]}");
             try
             {
                 System.IO.File.WriteAllText(AppDomain.CurrentDomain.BaseDirectory + "configw.json", JsonConvert.SerializeObject(json));
                 return true;
-            } catch
+            }
+            catch
             {
                 MessageBox.Show("cannot create config files!");
                 return false;
@@ -408,7 +441,7 @@ namespace V2RayW
             {
                 e.Cancel = true;
             }
-            if(finalAction)
+            if (finalAction)
             {
                 Debug.WriteLine("final action, set");
                 _resetEvent.Set();
@@ -419,7 +452,7 @@ namespace V2RayW
         {
             if (!e.Cancelled)
             {
-                DialogResult res = MessageBox.Show("v2ray core exited unexpectedly! \n View log information?","Error", MessageBoxButtons.OKCancel,MessageBoxIcon.Stop);
+                DialogResult res = MessageBox.Show("v2ray core exited unexpectedly! \n View log information?", "Error", MessageBoxButtons.OKCancel, MessageBoxIcon.Stop);
                 if (res == DialogResult.OK)
                 {
                     mainForm.viewLogToolStripMenuItem_Click(sender, e);
@@ -442,7 +475,8 @@ namespace V2RayW
             try
             {
                 v2rayProcess.Start();
-            } catch
+            }
+            catch
             {
                 return 2;
             }
@@ -451,7 +485,8 @@ namespace V2RayW
             if (v2rayProcess.ExitCode != 0)
             {
                 return 2;
-            } else
+            }
+            else
             {
                 if (versionOutput.StartsWith("V2Ray "))
                 {
@@ -471,7 +506,7 @@ namespace V2RayW
             }
         }
     }
-    
+
     public class Profile
     {
         internal string address = "1.2.3.4";

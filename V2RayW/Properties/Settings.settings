@@ -37,9 +37,6 @@
     <Setting Name="dns" Type="System.String" Scope="User">
       <Value Profile="(Default)">localhost</Value>
     </Setting>
-    <Setting Name="localPort" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">8080</Value>
-    </Setting>
     <Setting Name="profilesStr" Type="System.String" Scope="User">
       <Value Profile="(Default)">{"address":"v2ray.cool","allowPassive":0,"alterId":64,"network":0,"port":10086,"remark":"test server","userId":"23ad6b10-8d1a-40f7-8ad0-e3e35cd38297","security":0}</Value>
     </Setting>
@@ -55,9 +52,6 @@
     <Setting Name="proxyMode" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">0</Value>
     </Setting>
-    <Setting Name="inProtocol" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">0</Value>
-    </Setting>
     <Setting Name="alarmUnknown" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
@@ -69,6 +63,18 @@
     </Setting>
     <Setting Name="useSysproxy" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="useSocks5" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="useHttp" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="socks5Port" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">1080</Value>
+    </Setting>
+    <Setting Name="httpPort" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">1081</Value>
     </Setting>
   </Settings>
 </SettingsFile>

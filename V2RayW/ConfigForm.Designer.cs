@@ -36,7 +36,7 @@
             this.label3 = new System.Windows.Forms.Label();
             this.buttonSave = new System.Windows.Forms.Button();
             this.buttonCancel = new System.Windows.Forms.Button();
-            this.textBoxLocalPort = new System.Windows.Forms.TextBox();
+            this.textBoxSocks5Port = new System.Windows.Forms.TextBox();
             this.textBoxDNS = new System.Windows.Forms.TextBox();
             this.buttonTS = new System.Windows.Forms.Button();
             this.groupBoxServer = new System.Windows.Forms.GroupBox();
@@ -60,8 +60,11 @@
             this.label5 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.comboBoxInP = new System.Windows.Forms.ComboBox();
             this.checkBoxAlarm = new System.Windows.Forms.CheckBox();
+            this.checkSocks5 = new System.Windows.Forms.CheckBox();
+            this.label11 = new System.Windows.Forms.Label();
+            this.textBoxHttpPort = new System.Windows.Forms.TextBox();
+            this.checkHttp = new System.Windows.Forms.CheckBox();
             this.groupBoxServer.SuspendLayout();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
@@ -91,7 +94,6 @@
             // 
             resources.ApplyResources(this.label3, "label3");
             this.label3.Name = "label3";
-            this.label3.Click += new System.EventHandler(this.label3_Click);
             // 
             // buttonSave
             // 
@@ -108,10 +110,10 @@
             this.buttonCancel.UseVisualStyleBackColor = true;
             this.buttonCancel.Click += new System.EventHandler(this.buttonCancel_Click);
             // 
-            // textBoxLocalPort
+            // textBoxSocks5Port
             // 
-            resources.ApplyResources(this.textBoxLocalPort, "textBoxLocalPort");
-            this.textBoxLocalPort.Name = "textBoxLocalPort";
+            resources.ApplyResources(this.textBoxSocks5Port, "textBoxSocks5Port");
+            this.textBoxSocks5Port.Name = "textBoxSocks5Port";
             // 
             // textBoxDNS
             // 
@@ -134,7 +136,6 @@
             resources.ApplyResources(this.groupBoxServer, "groupBoxServer");
             this.groupBoxServer.Name = "groupBoxServer";
             this.groupBoxServer.TabStop = false;
-            this.groupBoxServer.Enter += new System.EventHandler(this.groupBoxServer_Enter);
             // 
             // buttonRemove
             // 
@@ -177,7 +178,6 @@
             this.panel1.Controls.Add(this.label4);
             resources.ApplyResources(this.panel1, "panel1");
             this.panel1.Name = "panel1";
-            this.panel1.Paint += new System.Windows.Forms.PaintEventHandler(this.panel1_Paint);
             // 
             // comboBoxSecurity
             // 
@@ -242,7 +242,6 @@
             // 
             resources.ApplyResources(this.label9, "label9");
             this.label9.Name = "label9";
-            this.label9.Click += new System.EventHandler(this.label9_Click);
             // 
             // checkBoxAllowP
             // 
@@ -281,22 +280,35 @@
             resources.ApplyResources(this.label2, "label2");
             this.label2.Name = "label2";
             // 
-            // comboBoxInP
-            // 
-            this.comboBoxInP.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBoxInP.FormattingEnabled = true;
-            this.comboBoxInP.Items.AddRange(new object[] {
-            resources.GetString("comboBoxInP.Items"),
-            resources.GetString("comboBoxInP.Items1")});
-            resources.ApplyResources(this.comboBoxInP, "comboBoxInP");
-            this.comboBoxInP.Name = "comboBoxInP";
-            this.comboBoxInP.SelectedIndexChanged += new System.EventHandler(this.comboBoxInP_SelectedIndexChanged);
-            // 
             // checkBoxAlarm
             // 
             resources.ApplyResources(this.checkBoxAlarm, "checkBoxAlarm");
             this.checkBoxAlarm.Name = "checkBoxAlarm";
             this.checkBoxAlarm.UseVisualStyleBackColor = true;
+            // 
+            // checkSocks5
+            // 
+            resources.ApplyResources(this.checkSocks5, "checkSocks5");
+            this.checkSocks5.Name = "checkSocks5";
+            this.checkSocks5.UseVisualStyleBackColor = true;
+            this.checkSocks5.CheckedChanged += new System.EventHandler(this.checkSocks5_CheckedChanged);
+            // 
+            // label11
+            // 
+            resources.ApplyResources(this.label11, "label11");
+            this.label11.Name = "label11";
+            // 
+            // textBoxHttpPort
+            // 
+            resources.ApplyResources(this.textBoxHttpPort, "textBoxHttpPort");
+            this.textBoxHttpPort.Name = "textBoxHttpPort";
+            // 
+            // checkHttp
+            // 
+            resources.ApplyResources(this.checkHttp, "checkHttp");
+            this.checkHttp.Name = "checkHttp";
+            this.checkHttp.UseVisualStyleBackColor = true;
+            this.checkHttp.CheckedChanged += new System.EventHandler(this.checkHttp_CheckedChanged);
             // 
             // ConfigForm
             // 
@@ -304,18 +316,21 @@
             resources.ApplyResources(this, "$this");
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.buttonCancel;
+            this.Controls.Add(this.checkHttp);
+            this.Controls.Add(this.checkSocks5);
             this.Controls.Add(this.checkBoxAlarm);
-            this.Controls.Add(this.comboBoxInP);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.groupBoxServer);
             this.Controls.Add(this.buttonTS);
+            this.Controls.Add(this.textBoxHttpPort);
             this.Controls.Add(this.textBoxDNS);
-            this.Controls.Add(this.textBoxLocalPort);
+            this.Controls.Add(this.textBoxSocks5Port);
             this.Controls.Add(this.buttonCancel);
             this.Controls.Add(this.buttonSave);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.labelDNS);
             this.Controls.Add(this.label1);
+            this.Controls.Add(this.label11);
             this.Controls.Add(this.checkBoxUDP);
             this.Controls.Add(this.labelLocalPort);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
@@ -340,7 +355,7 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Button buttonSave;
         private System.Windows.Forms.Button buttonCancel;
-        private System.Windows.Forms.TextBox textBoxLocalPort;
+        private System.Windows.Forms.TextBox textBoxSocks5Port;
         private System.Windows.Forms.TextBox textBoxDNS;
         private System.Windows.Forms.Button buttonTS;
         private System.Windows.Forms.GroupBox groupBoxServer;
@@ -362,9 +377,12 @@
         private System.Windows.Forms.Button buttonRemove;
         private System.Windows.Forms.Button buttonAdd;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.ComboBox comboBoxInP;
         private System.Windows.Forms.ComboBox comboBoxSecurity;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.CheckBox checkBoxAlarm;
+        private System.Windows.Forms.CheckBox checkSocks5;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.TextBox textBoxHttpPort;
+        private System.Windows.Forms.CheckBox checkHttp;
     }
 }

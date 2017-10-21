@@ -46,8 +46,10 @@ namespace V2RayW
             Program.selectedServerIndex = ConfigForm.profiles.Count > 0 ? listBoxServers.SelectedIndex : -1;
 
             // save to file
-            Properties.Settings.Default.inProtocol = comboBoxInP.SelectedIndex; // 0:socks, 1:http
-            Properties.Settings.Default.localPort = Program.strToInt(textBoxLocalPort.Text, 1080);
+            Properties.Settings.Default.useSocks5 = checkSocks5.Checked; // 0:socks, 1:http
+            Properties.Settings.Default.socks5Port = Program.strToInt(textBoxSocks5Port.Text, 1080);
+            Properties.Settings.Default.useHttp = checkHttp.Checked;
+            Properties.Settings.Default.httpPort = Program.strToInt(textBoxHttpPort.Text, 1081);
             Properties.Settings.Default.udpSupport = checkBoxUDP.Checked;
             Properties.Settings.Default.dns = textBoxDNS.Text != "" ? textBoxDNS.Text : "localhost";
             var profileArray = Program.profiles.Select(p => Program.profileToStr(p));
@@ -78,31 +80,13 @@ namespace V2RayW
             }
 
             //Properties.Settings.Default.Upgrade();
-            comboBoxInP.SelectedIndex = Properties.Settings.Default.inProtocol;
-            textBoxLocalPort.Text = Properties.Settings.Default.localPort.ToString();
+            checkSocks5.Checked = Properties.Settings.Default.useSocks5;
+            textBoxSocks5Port.Text = Properties.Settings.Default.socks5Port.ToString();
+            checkHttp.Checked = Properties.Settings.Default.useHttp;
+            textBoxHttpPort.Text = Properties.Settings.Default.httpPort.ToString();
             checkBoxUDP.Checked = Properties.Settings.Default.udpSupport;
             textBoxDNS.Text = Properties.Settings.Default.dns;
             loadProfiles();
-        }
-
-        private void groupBoxServer_Enter(object sender, EventArgs e)
-        {
-
-        }
-
-        private void panel1_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
-
-        private void label3_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label9_Click(object sender, EventArgs e)
-        {
-
         }
 
         private void buttonAdd_Click(object sender, EventArgs e)
@@ -227,17 +211,31 @@ namespace V2RayW
             }
         }
 
-        private void comboBoxInP_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            checkBoxUDP.Visible = comboBoxInP.SelectedIndex == 0;
-        }
-
         private void comboBoxSecurity_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (selectedServerIndex >= 0)
             {
                 profiles[selectedServerIndex].security = comboBoxSecurity.SelectedIndex;
             }
+        }
+
+        private void checkSocks5_CheckedChanged(object sender, EventArgs e)
+        {
+            if(!(checkSocks5.Checked || checkHttp.Checked))
+            {
+                checkHttp.Checked = true;
+            }
+            textBoxSocks5Port.Enabled = checkSocks5.Checked;
+            checkBoxUDP.Enabled = checkSocks5.Checked;
+        }
+
+        private void checkHttp_CheckedChanged(object sender, EventArgs e)
+        {
+            if (!(checkSocks5.Checked || checkHttp.Checked))
+            {
+                checkSocks5.Checked = true;
+            }
+            textBoxHttpPort.Enabled = checkHttp.Checked;
         }
     }
 }

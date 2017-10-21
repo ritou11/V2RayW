@@ -78,18 +78,6 @@ namespace V2RayW.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("8080")]
-        public int localPort {
-            get {
-                return ((int)(this["localPort"]));
-            }
-            set {
-                this["localPort"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("{\"address\":\"v2ray.cool\",\"allowPassive\":0,\"alterId\":64,\"network\":0,\"port\":10086,\"r" +
             "emark\":\"test server\",\"userId\":\"23ad6b10-8d1a-40f7-8ad0-e3e35cd38297\",\"security\":" +
             "0}")]
@@ -152,18 +140,6 @@ namespace V2RayW.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public int inProtocol {
-            get {
-                return ((int)(this["inProtocol"]));
-            }
-            set {
-                this["inProtocol"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool alarmUnknown {
             get {
@@ -195,6 +171,54 @@ namespace V2RayW.Properties {
             }
             set {
                 this["useSysproxy"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool useSocks5 {
+            get {
+                return ((bool)(this["useSocks5"]));
+            }
+            set {
+                this["useSocks5"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool useHttp {
+            get {
+                return ((bool)(this["useHttp"]));
+            }
+            set {
+                this["useHttp"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1080")]
+        public int socks5Port {
+            get {
+                return ((int)(this["socks5Port"]));
+            }
+            set {
+                this["socks5Port"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1081")]
+        public int httpPort {
+            get {
+                return ((int)(this["httpPort"]));
+            }
+            set {
+                this["httpPort"] = value;
             }
         }
     }
