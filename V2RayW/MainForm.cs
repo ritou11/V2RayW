@@ -37,16 +37,20 @@ namespace V2RayW
                 case 1: pacModeToolStripMenuItem.Checked = true; break;
                 case 2: globalModeToolStripMenuItem.Checked = true; break;
             }
+
+            useSysproxyToolStripMenuItem.Checked = Program.useSysproxy;
+
             serversToolStripMenuItem.DropDownItems.Clear();
             var serverMenuItems = Program.profiles.Select(p => new ToolStripMenuItem(p.remark == "" ? p.address : p.remark, null, switchToServer)).ToArray();
-            if (Program.profiles.Count > 0 )
+            if (Program.profiles.Count > 0)
             {
                 serverMenuItems[Program.selectedServerIndex].Checked = true;
                 foreach (var p in Program.profiles)
                 {
                     serversToolStripMenuItem.DropDownItems.AddRange(serverMenuItems);
                 }
-            } else
+            }
+            else
             {
                 var item = new ToolStripMenuItem("no available servers.");
                 item.Enabled = false;
@@ -62,7 +66,7 @@ namespace V2RayW
                 i.Checked = false;
             }
             ((ToolStripMenuItem)serversToolStripMenuItem.DropDownItems[Program.selectedServerIndex]).Checked = true;
-            Program.updateSystemProxy();
+            Program.updateProxy();
         }
 
         private void configureToolStripMenuItem_Click(object sender, EventArgs e)
@@ -82,7 +86,7 @@ namespace V2RayW
                 Program.proxyIsOn = false; // change to false temporarily
                 Program.finalAction = true;
                 Debug.WriteLine("close system proxy on exit");
-                Program.updateSystemProxy();
+                Program.updateProxy();
                 Debug.WriteLine("wait quit");
                 Program._resetEvent.WaitOne();
                 Program.proxyIsOn = true; // recover proxy state
@@ -103,7 +107,7 @@ namespace V2RayW
         private void startStopToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Program.proxyIsOn = !Program.proxyIsOn;
-            Program.updateSystemProxy();
+            Program.updateProxy();
             this.updateMenu();
         }
 
@@ -111,21 +115,21 @@ namespace V2RayW
         {
             Program.proxyMode = 0;
             this.updateMenu();
-            Program.updateSystemProxy();
+            Program.updateProxy();
         }
 
         private void pacModeToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Program.proxyMode = 1;
             this.updateMenu();
-            Program.updateSystemProxy();
+            Program.updateProxy();
         }
 
         private void globalModeToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Program.proxyMode = 2;
             this.updateMenu();
-            Program.updateSystemProxy();
+            Program.updateProxy();
         }
 
         internal void viewLogToolStripMenuItem_Click(object sender, EventArgs e)
@@ -143,6 +147,13 @@ namespace V2RayW
             }
             System.Threading.Thread.Sleep(500);
             MessageBox.Show(Program.v2rayoutput);*/
+        }
+
+        private void useSysproxyToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Program.useSysproxy = useSysproxyToolStripMenuItem.Checked;
+            Program.updateProxy();
+            if (!useSysproxyToolStripMenuItem.Checked) Program.updateSysproxy(false);
         }
     }
 }

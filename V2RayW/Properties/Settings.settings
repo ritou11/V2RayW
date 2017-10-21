@@ -67,5 +67,8 @@
   "concurrency": 8
 }</Value>
     </Setting>
+    <Setting Name="useSysproxy" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

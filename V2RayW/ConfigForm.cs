@@ -55,7 +55,7 @@ namespace V2RayW
             Properties.Settings.Default.alarmUnknown = checkBoxAlarm.Checked;
             Properties.Settings.Default.Save();
 
-            Program.updateSystemProxy();
+            Program.updateProxy();
             Program.mainForm.updateMenu();
             this.Close();
         }

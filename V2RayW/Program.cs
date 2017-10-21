@@ -47,8 +47,17 @@ namespace V2RayW
                 Properties.Settings.Default.Save();
             }
         }
+        public static bool useSysproxy
+        {
+            get { return Properties.Settings.Default.useSysproxy; }
+            set
+            {
+                Properties.Settings.Default.useSysproxy = value;
+                Properties.Settings.Default.Save();
+            }
+        }
         public static MainForm mainForm;
-        const string v2rayVersion = "v2.33";
+        const string v2rayVersion = "v2.41";
         static BackgroundWorker v2rayCoreWorker = new BackgroundWorker();
         public static AutoResetEvent _resetEvent = new AutoResetEvent(false);
         public static bool finalAction = false;
@@ -142,7 +151,7 @@ namespace V2RayW
             }
             mainForm = new MainForm();
             mainForm.updateMenu();
-            Program.updateSystemProxy();
+            Program.updateProxy();
 
             Application.Run();
         }
@@ -198,19 +207,19 @@ namespace V2RayW
             }
         }
 
-        public static async void updateSystemProxy()
+        public static async void updateProxy()
         {
             // for final action, change system proxy first and then stop v2ray;
-            if (finalAction)
+            if (useSysproxy && finalAction)
             {
-                runSysproxy();
+                updateSysproxy(proxyIsOn);
                 Debug.WriteLine("system proxy changed, will stop v2ray");
             }
 
             if (proxyIsOn)
             {
                 await stopV2Ray();
-                //generate config.json
+                //generate configw.json
                 if (generateConfigJson())
                 {
                     v2rayCoreWorker.RunWorkerAsync();
@@ -225,9 +234,9 @@ namespace V2RayW
                 Debug.WriteLine("v stopped");
             }
             //change system proxy
-            if (!finalAction)
+            if ( useSysproxy && !finalAction)
             {
-                var res = runSysproxy();
+                var res = updateSysproxy(proxyIsOn);
                 if (res == 2)
                     MessageBox.Show("Fained to modify system proxy settings!");
                 else if (res == 1)
@@ -241,22 +250,22 @@ namespace V2RayW
         const int INTERNET_OPTION_SETTINGS_CHANGED = 39;
         const int INTERNET_OPTION_REFRESH = 37;
 
-        public static int runSysproxy()
+        public static int updateSysproxy( bool state )
         {
             RegistryKey registry = Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings", true);
 
             bool settingsReturn, refreshReturn;
 
-            registry.SetValue("ProxyEnable", proxyIsOn ? 1 : 0);
-            if (proxyIsOn)
+            registry.SetValue("ProxyEnable", state ? 1 : 0);
+            if (state)
             {
-                registry.SetValue("ProxyServer", (Properties.Settings.Default.inProtocol == 0 ? "socks=" : "http://") + $"127.0.0.1:{Properties.Settings.Default.localPort}");
+                registry.SetValue("ProxyServer", (Properties.Settings.Default.inProtocol == 0 ? "" : "http://") + $"127.0.0.1:{Properties.Settings.Default.localPort}");
                 registry.SetValue("ProxyOverride", "<local>;localhost;127.*;10.*;172.16.*;172.17.*;172.18.*;172.19.*;172.20.*;172.21.*;172.22.*;172.23.*;172.24.*;172.25.*;172.26.*;172.27.*;172.28.*;172.29.*;172.30.*;172.31.*;172.32.*;192.168.*");
             }
-            var sysState = registry.GetValue("ProxyEnable").ToString() == (proxyIsOn ? "1" : "0");
-            var sysServer = proxyIsOn ? registry.GetValue("ProxyServer").ToString() == (Properties.Settings.Default.inProtocol == 0 ? "socks=" : "http://") +  $"127.0.0.1:{Properties.Settings.Default.localPort}" : true;
+            var sysState = registry.GetValue("ProxyEnable").ToString() == (state ? "1" : "0");
+            var sysServer = state ? registry.GetValue("ProxyServer").ToString() == (Properties.Settings.Default.inProtocol == 0 ? "" : "http://") +  $"127.0.0.1:{Properties.Settings.Default.localPort}" : true;
             //MessageBox.Show(registry.GetValue("ProxyServer").ToString());
-            var sysOverride = proxyIsOn ? registry.GetValue("ProxyOverride").ToString() == "<local>;localhost;127.*;10.*;172.16.*;172.17.*;172.18.*;172.19.*;172.20.*;172.21.*;172.22.*;172.23.*;172.24.*;172.25.*;172.26.*;172.27.*;172.28.*;172.29.*;172.30.*;172.31.*;172.32.*;192.168.*" : true;
+            var sysOverride = state ? registry.GetValue("ProxyOverride").ToString() == "<local>;localhost;127.*;10.*;172.16.*;172.17.*;172.18.*;172.19.*;172.20.*;172.21.*;172.22.*;172.23.*;172.24.*;172.25.*;172.26.*;172.27.*;172.28.*;172.29.*;172.30.*;172.31.*;172.32.*;192.168.*" : true;
             // They cause the OS to refresh the settings, causing IP to realy update
             settingsReturn = InternetSetOption(IntPtr.Zero, INTERNET_OPTION_SETTINGS_CHANGED, IntPtr.Zero, 0);
             refreshReturn = InternetSetOption(IntPtr.Zero, INTERNET_OPTION_REFRESH, IntPtr.Zero, 0);
@@ -276,7 +285,7 @@ namespace V2RayW
         }
 
         /*
-        public static int runSysproxy()
+        public static int updateSysproxy()
         {
             var sysproxyProcess = new Process();
             sysproxyProcess.StartInfo.FileName = AppDomain.CurrentDomain.BaseDirectory + "sysproxy.exe";
@@ -417,7 +426,7 @@ namespace V2RayW
                 }
                 proxyIsOn = false;
                 mainForm.updateMenu();
-                updateSystemProxy();
+                updateProxy();
             }
         }
 
